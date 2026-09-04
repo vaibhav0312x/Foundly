@@ -2,44 +2,40 @@
 // FOUNDLY - FIREBASE + REAL LEADERBOARD
 // ========================================
 
-
 // ========================================
 // FIREBASE IMPORTS
 // ========================================
 
 import {
-    initializeApp
+initializeApp
 } from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-
 import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged
+getAuth,
+GoogleAuthProvider,
+signInWithPopup,
+signOut,
+onAuthStateChanged
 } from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-
 import {
-    getFirestore,
-    collection,
-    addDoc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp,
-    doc,
-    setDoc,
-    getDoc,
-    updateDoc,
-    increment,
-    runTransaction
+getFirestore,
+collection,
+addDoc,
+onSnapshot,
+query,
+orderBy,
+serverTimestamp,
+doc,
+setDoc,
+getDoc,
+updateDoc,
+increment,
+runTransaction
 } from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
 
 // ========================================
 // FIREBASE CONFIG
@@ -47,49 +43,44 @@ import {
 
 const firebaseConfig = {
 
-    apiKey:
-        "AIzaSyDaVaQJOCPqqNkYAc-Vlfu1szEF0ipnnlk",
+apiKey:
+    "AIzaSyDaVaQJOCPqqNkYAc-Vlfu1szEF0ipnnlk",
 
-    authDomain:
-        "foundly-b0d82.firebaseapp.com",
+authDomain:
+    "foundly-b0d82.firebaseapp.com",
 
-    projectId:
-        "foundly-b0d82",
+projectId:
+    "foundly-b0d82",
 
-    storageBucket:
-        "foundly-b0d82.firebasestorage.app",
+storageBucket:
+    "foundly-b0d82.firebasestorage.app",
 
-    messagingSenderId:
-        "551566138613",
+messagingSenderId:
+    "551566138613",
 
-    appId:
-        "1:551566138613:web:d193290c4862cb0e39f9bc",
+appId:
+    "1:551566138613:web:d193290c4862cb0e39f9bc",
 
-    measurementId:
-        "G-99DT842GW1"
+measurementId:
+    "G-99DT842GW1"
 
 };
-
 
 // ========================================
 // INITIALIZE FIREBASE
 // ========================================
 
 const app =
-    initializeApp(firebaseConfig);
-
+initializeApp(firebaseConfig);
 
 const auth =
-    getAuth(app);
-
+getAuth(app);
 
 const db =
-    getFirestore(app);
-
+getFirestore(app);
 
 const provider =
-    new GoogleAuthProvider();
-
+new GoogleAuthProvider();
 
 // ========================================
 // APP STATE
@@ -100,14 +91,13 @@ let items = [];
 let users = [];
 
 let currentType =
-    "Lost";
+"Lost";
 
 let currentFilter =
-    "All";
+"All";
 
 let currentUser =
-    null;
-
+null;
 
 // ========================================
 // GOOGLE LOGIN
@@ -115,28 +105,27 @@ let currentUser =
 
 async function login() {
 
-    try {
+try {
 
-        await signInWithPopup(
-            auth,
-            provider
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "❌ Login failed: " +
-            error.message
-        );
-
-    }
+    await signInWithPopup(
+        auth,
+        provider
+    );
 
 }
 
+catch (error) {
+
+    console.error(error);
+
+    showToast(
+        "❌ Login failed: " +
+        error.message
+    );
+
+}
+
+}
 
 // ========================================
 // LOGOUT
@@ -144,28 +133,27 @@ async function login() {
 
 async function logout() {
 
-    try {
+try {
 
-        await signOut(auth);
+    await signOut(auth);
 
-        showToast(
-            "Logged out successfully!"
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "❌ Logout failed"
-        );
-
-    }
+    showToast(
+        "Logged out successfully!"
+    );
 
 }
 
+catch (error) {
+
+    console.error(error);
+
+    showToast(
+        "❌ Logout failed"
+    );
+
+}
+
+}
 
 // ========================================
 // CREATE / UPDATE USER PROFILE
@@ -173,89 +161,88 @@ async function logout() {
 
 async function createUserProfile(user) {
 
-    if (!user) return;
+if (!user) return;
 
 
-    try {
+try {
 
-        const userRef =
-            doc(
-                db,
-                "users",
-                user.uid
-            );
-
-
-        const userSnap =
-            await getDoc(userRef);
+    const userRef =
+        doc(
+            db,
+            "users",
+            user.uid
+        );
 
 
-        if (!userSnap.exists()) {
+    const userSnap =
+        await getDoc(userRef);
 
-            await setDoc(
 
-                userRef,
+    if (!userSnap.exists()) {
 
-                {
+        await setDoc(
 
-                    name:
-                        user.displayName ||
-                        "Campus User",
+            userRef,
 
-                    email:
-                        user.email ||
-                        "",
+            {
 
-                    points:
-                        0,
+                name:
+                    user.displayName ||
+                    "Campus User",
 
-                    resolvedCount:
-                        0,
+                email:
+                    user.email ||
+                    "",
 
-                    createdAt:
-                        serverTimestamp()
+                points:
+                    0,
 
-                }
+                resolvedCount:
+                    0,
 
-            );
+                createdAt:
+                    serverTimestamp()
 
-        }
+            }
 
-        else {
-
-            await updateDoc(
-
-                userRef,
-
-                {
-
-                    name:
-                        user.displayName ||
-                        "Campus User",
-
-                    email:
-                        user.email ||
-                        ""
-
-                }
-
-            );
-
-        }
+        );
 
     }
 
-    catch (error) {
+    else {
 
-        console.error(
-            "User profile error:",
-            error
+        await updateDoc(
+
+            userRef,
+
+            {
+
+                name:
+                    user.displayName ||
+                    "Campus User",
+
+                email:
+                    user.email ||
+                    ""
+
+            }
+
         );
 
     }
 
 }
 
+catch (error) {
+
+    console.error(
+        "User profile error:",
+        error
+    );
+
+}
+
+}
 
 // ========================================
 // AUTH STATE
@@ -263,89 +250,88 @@ async function createUserProfile(user) {
 
 onAuthStateChanged(
 
-    auth,
+auth,
 
-    async (user) => {
+async (user) => {
 
-        if (user) {
+    if (user) {
 
-            currentUser =
-                user;
-
-
-            await createUserProfile(
-                user
-            );
+        currentUser =
+            user;
 
 
-            document
-                .getElementById(
-                    "loginPage"
-                )
-                .style.display =
-                "none";
+        await createUserProfile(
+            user
+        );
 
 
-            document
-                .getElementById(
-                    "appPage"
-                )
-                .style.display =
-                "flex";
+        document
+            .getElementById(
+                "loginPage"
+            )
+            .style.display =
+            "none";
 
 
-            updateUserUI(
-                user
-            );
+        document
+            .getElementById(
+                "appPage"
+            )
+            .style.display =
+            "flex";
 
 
-            renderMyPosts();
-
-            renderLeaderboard();
-
-
-            showToast(
-
-                "Welcome, " +
-
-                (
-                    user.displayName ||
-                    "Campus User"
-                ) +
-
-                "! 👋"
-
-            );
-
-        }
-
-        else {
-
-            currentUser =
-                null;
+        updateUserUI(
+            user
+        );
 
 
-            document
-                .getElementById(
-                    "appPage"
-                )
-                .style.display =
-                "none";
+        renderMyPosts();
+
+        renderLeaderboard();
 
 
-            document
-                .getElementById(
-                    "loginPage"
-                )
-                .style.display =
-                "flex";
+        showToast(
 
-        }
+            "Welcome, " +
+
+            (
+                user.displayName ||
+                "Campus User"
+            ) +
+
+            "! 👋"
+
+        );
 
     }
 
-);
+    else {
 
+        currentUser =
+            null;
+
+
+        document
+            .getElementById(
+                "appPage"
+            )
+            .style.display =
+            "none";
+
+
+        document
+            .getElementById(
+                "loginPage"
+            )
+            .style.display =
+            "flex";
+
+    }
+
+}
+
+);
 
 // ========================================
 // UPDATE USER UI
@@ -353,54 +339,53 @@ onAuthStateChanged(
 
 function updateUserUI(user) {
 
-    const name =
+const name =
 
-        user.displayName ||
+    user.displayName ||
 
-        "Campus User";
-
-
-    const avatar =
-
-        name
-            .charAt(0)
-            .toUpperCase();
+    "Campus User";
 
 
-    const avatarElement =
+const avatar =
 
-        document.querySelector(
-            ".sidebar .user-avatar"
-        );
-
-
-    const nameElement =
-
-        document.querySelector(
-            ".user-card b"
-        );
+    name
+        .charAt(0)
+        .toUpperCase();
 
 
-    if (avatarElement) {
+const avatarElement =
 
-        avatarElement.innerText =
-            avatar;
-
-    }
-
-
-    if (nameElement) {
-
-        nameElement.innerText =
-            name;
-
-    }
+    document.querySelector(
+        ".sidebar .user-avatar"
+    );
 
 
-    updateMyPoints();
+const nameElement =
+
+    document.querySelector(
+        ".user-card b"
+    );
+
+
+if (avatarElement) {
+
+    avatarElement.innerText =
+        avatar;
 
 }
 
+
+if (nameElement) {
+
+    nameElement.innerText =
+        name;
+
+}
+
+
+updateMyPoints();
+
+}
 
 // ========================================
 // UPDATE MY POINTS
@@ -408,68 +393,67 @@ function updateUserUI(user) {
 
 function updateMyPoints() {
 
-    if (!currentUser) return;
+if (!currentUser) return;
 
 
-    const userData =
+const userData =
 
-        users.find(
+    users.find(
 
-            user =>
+        user =>
 
-                user.id ===
-                currentUser.uid
+            user.id ===
+            currentUser.uid
 
-        );
-
-
-    const points =
-
-        userData
-
-            ? (
-                userData.points ||
-                0
-            )
-
-            : 0;
+    );
 
 
-    // SIDEBAR POINTS
+const points =
 
-    const sidebarPoints =
+    userData
 
-        document.getElementById(
-            "userPoints"
-        );
+        ? (
+            userData.points ||
+            0
+        )
 
-
-    if (sidebarPoints) {
-
-        sidebarPoints.innerText =
-            points;
-
-    }
+        : 0;
 
 
-    // LEADERBOARD "YOUR PROGRESS"
+// SIDEBAR POINTS
 
-    const leaderboardPoints =
+const sidebarPoints =
 
-        document.getElementById(
-            "leaderboardUserPoints"
-        );
+    document.getElementById(
+        "userPoints"
+    );
 
 
-    if (leaderboardPoints) {
+if (sidebarPoints) {
 
-        leaderboardPoints.innerText =
-            points;
-
-    }
+    sidebarPoints.innerText =
+        points;
 
 }
 
+
+// LEADERBOARD "YOUR PROGRESS"
+
+const leaderboardPoints =
+
+    document.getElementById(
+        "leaderboardUserPoints"
+    );
+
+
+if (leaderboardPoints) {
+
+    leaderboardPoints.innerText =
+        points;
+
+}
+
+}
 
 // ========================================
 // LOAD USERS
@@ -478,62 +462,60 @@ function updateMyPoints() {
 
 const usersQuery =
 
-    query(
+query(
 
-        collection(
-            db,
-            "users"
-        ),
+    collection(
+        db,
+        "users"
+    ),
 
-        orderBy(
-            "points",
-            "desc"
-        )
-
-    );
-
-
-onSnapshot(
-
-    usersQuery,
-
-    (snapshot) => {
-
-        users =
-
-            snapshot.docs.map(
-
-                document => ({
-
-                    id:
-                        document.id,
-
-                    ...document.data()
-
-                })
-
-            );
-
-
-        renderLeaderboard();
-
-        updateMyPoints();
-
-        updateStats();
-
-    },
-
-    (error) => {
-
-        console.error(
-            "Leaderboard error:",
-            error
-        );
-
-    }
+    orderBy(
+        "points",
+        "desc"
+    )
 
 );
 
+onSnapshot(
+
+usersQuery,
+
+(snapshot) => {
+
+    users =
+
+        snapshot.docs.map(
+
+            document => ({
+
+                id:
+                    document.id,
+
+                ...document.data()
+
+            })
+
+        );
+
+
+    renderLeaderboard();
+
+    updateMyPoints();
+
+    updateStats();
+
+},
+
+(error) => {
+
+    console.error(
+        "Leaderboard error:",
+        error
+    );
+
+}
+
+);
 
 // ========================================
 // LOAD ITEMS
@@ -541,64 +523,62 @@ onSnapshot(
 
 const itemsQuery =
 
-    query(
+query(
 
-        collection(
-            db,
-            "items"
-        ),
+    collection(
+        db,
+        "items"
+    ),
 
-        orderBy(
-            "createdAt",
-            "asc"
-        )
-
-    );
-
-
-onSnapshot(
-
-    itemsQuery,
-
-    (snapshot) => {
-
-        items =
-
-            snapshot.docs.map(
-
-                document => ({
-
-                    id:
-                        document.id,
-
-                    ...document.data()
-
-                })
-
-            );
-
-
-        renderRecentItems();
-
-        renderBrowseItems();
-
-        renderMyPosts();
-
-        updateStats();
-
-    },
-
-    (error) => {
-
-        console.error(
-            "Firestore error:",
-            error
-        );
-
-    }
+    orderBy(
+        "createdAt",
+        "asc"
+    )
 
 );
 
+onSnapshot(
+
+itemsQuery,
+
+(snapshot) => {
+
+    items =
+
+        snapshot.docs.map(
+
+            document => ({
+
+                id:
+                    document.id,
+
+                ...document.data()
+
+            })
+
+        );
+
+
+    renderRecentItems();
+
+    renderBrowseItems();
+
+    renderMyPosts();
+
+    updateStats();
+
+},
+
+(error) => {
+
+    console.error(
+        "Firestore error:",
+        error
+    );
+
+}
+
+);
 
 // ========================================
 // UPDATE HOME STATS
@@ -606,73 +586,39 @@ onSnapshot(
 
 function updateStats() {
 
-    const returnedCount =
+const returnedCount =
 
-        document.getElementById(
-            "returnedCount"
-        );
-
-
-    const communityCount =
-
-        document.getElementById(
-            "communityCount"
-        );
+    document.getElementById(
+        "returnedCount"
+    );
 
 
-    if (returnedCount) {
+const communityCount =
 
-        returnedCount.innerText =
-
-            items.filter(
-
-                item =>
-
-                    item.status ===
-                    "Resolved"
-
-            ).length;
-
-    }
+    document.getElementById(
+        "communityCount"
+    );
 
 
-    if (communityCount) {
+if (returnedCount) {
 
-        communityCount.innerText =
+    returnedCount.innerText =
 
-            users.filter(
+        items.filter(
 
-                user =>
+            item =>
 
-                    (
-                        user.points ||
-                        0
-                    ) > 0
+                item.status ===
+                "Resolved"
 
-            ).length;
-
-    }
+        ).length;
 
 }
 
 
-// ========================================
-// REAL LEADERBOARD
-// ========================================
+if (communityCount) {
 
-function renderLeaderboard() {
-
-    const container =
-
-        document.getElementById(
-            "leaderboardContent"
-        );
-
-
-    if (!container) return;
-
-
-    const helpers =
+    communityCount.innerText =
 
         users.filter(
 
@@ -683,303 +629,334 @@ function renderLeaderboard() {
                     0
                 ) > 0
 
-        );
+        ).length;
+
+}
+
+}
+
+// ========================================
+// REAL LEADERBOARD
+// ========================================
+
+function renderLeaderboard() {
+
+const container =
+
+    document.getElementById(
+        "leaderboardContent"
+    );
 
 
-    if (helpers.length === 0) {
-
-        container.className =
-            "leaderboard-empty";
+if (!container) return;
 
 
-        container.innerHTML = `
+const helpers =
 
-            <div class="empty-icon">
+    users.filter(
 
-                🏆
+        user =>
 
-            </div>
+            (
+                user.points ||
+                0
+            ) > 0
 
-
-            <h2>
-
-                No helpers on the leaderboard yet
-
-            </h2>
+    );
 
 
-            <p>
-
-                Help someone successfully find
-                their lost item to earn points!
-
-            </p>
-
-        `;
-
-
-        return;
-
-    }
-
+if (helpers.length === 0) {
 
     container.className =
-        "leaderboard-list";
+        "leaderboard-empty";
 
 
-    container.innerHTML =
+    container.innerHTML = `
 
-        helpers
+        <div class="empty-icon">
 
-            .map(
+            🏆
 
-                (user, index) => {
-
-                    const rank =
-                        index + 1;
+        </div>
 
 
-                    let medal =
-                        "🏅";
+        <h2>
+
+            No helpers on the leaderboard yet
+
+        </h2>
 
 
-                    if (rank === 1) {
+        <p>
 
-                        medal =
-                            "🥇";
+            Help someone successfully find
+            their lost item to earn points!
 
-                    }
+        </p>
 
-                    else if (rank === 2) {
-
-                        medal =
-                            "🥈";
-
-                    }
-
-                    else if (rank === 3) {
-
-                        medal =
-                            "🥉";
-
-                    }
+    `;
 
 
-                    const initial =
+    return;
 
-                        (
-                            user.name ||
-                            "U"
-                        )
-
-                            .charAt(0)
-                            .toUpperCase();
+}
 
 
-                    const isMe =
-
-                        currentUser &&
-
-                        user.id ===
-                        currentUser.uid;
+container.className =
+    "leaderboard-list";
 
 
-                    return `
+container.innerHTML =
+
+    helpers
+
+        .map(
+
+            (user, index) => {
+
+                const rank =
+                    index + 1;
+
+
+                let medal =
+                    "🏅";
+
+
+                if (rank === 1) {
+
+                    medal =
+                        "🥇";
+
+                }
+
+                else if (rank === 2) {
+
+                    medal =
+                        "🥈";
+
+                }
+
+                else if (rank === 3) {
+
+                    medal =
+                        "🥉";
+
+                }
+
+
+                const initial =
+
+                    (
+                        user.name ||
+                        "U"
+                    )
+
+                        .charAt(0)
+                        .toUpperCase();
+
+
+                const isMe =
+
+                    currentUser &&
+
+                    user.id ===
+                    currentUser.uid;
+
+
+                return `
+
+                    <div
+                        class="leaderboard-item"
+                    >
+
 
                         <div
-                            class="leaderboard-item"
+                            class="leaderboard-rank"
+                        >
+
+                            ${medal}
+
+                            #${rank}
+
+                        </div>
+
+
+                        <div
+                            class="leaderboard-user"
                         >
 
 
                             <div
-                                class="leaderboard-rank"
+                                class="user-avatar"
                             >
 
-                                ${medal}
-
-                                #${rank}
+                                ${initial}
 
                             </div>
 
 
-                            <div
-                                class="leaderboard-user"
-                            >
+                            <div>
+
+                                <b>
+
+                                    ${escapeHTML(
+                                        user.name ||
+                                        "Campus User"
+                                    )}
+
+                                    ${
+                                        isMe
+                                            ? " (You)"
+                                            : ""
+                                    }
+
+                                </b>
 
 
-                                <div
-                                    class="user-avatar"
-                                >
+                                <small>
 
-                                    ${initial}
+                                    ${
+                                        user.resolvedCount ||
+                                        0
+                                    }
 
-                                </div>
+                                    successful helps
 
-
-                                <div>
-
-                                    <b>
-
-                                        ${escapeHTML(
-                                            user.name ||
-                                            "Campus User"
-                                        )}
-
-                                        ${
-                                            isMe
-                                                ? " (You)"
-                                                : ""
-                                        }
-
-                                    </b>
-
-
-                                    <small>
-
-                                        ${
-                                            user.resolvedCount ||
-                                            0
-                                        }
-
-                                        successful helps
-
-                                    </small>
-
-                                </div>
-
-
-                            </div>
-
-
-                            <div
-                                class="leaderboard-points"
-                            >
-
-                                ⭐
-
-                                ${
-                                    user.points ||
-                                    0
-                                }
-
-                                points
+                                </small>
 
                             </div>
 
 
                         </div>
 
-                    `;
 
-                }
+                        <div
+                            class="leaderboard-points"
+                        >
 
-            )
+                            ⭐
 
-            .join("");
+                            ${
+                                user.points ||
+                                0
+                            }
+
+                            points
+
+                        </div>
+
+
+                    </div>
+
+                `;
+
+            }
+
+        )
+
+        .join("");
 
 }
-
 
 // ========================================
 // NAVIGATION
 // ========================================
 
 function showPage(
-    pageName,
-    button
+pageName,
+button
 ) {
 
-    document
+document
 
-        .querySelectorAll(
-            ".page-section"
-        )
+    .querySelectorAll(
+        ".page-section"
+    )
 
-        .forEach(
+    .forEach(
 
-            page =>
+        page =>
 
-                page.classList.remove(
-                    "active-page"
-                )
+            page.classList.remove(
+                "active-page"
+            )
 
-        );
-
-
-    const selectedPage =
-
-        document.getElementById(
-            pageName +
-            "Page"
-        );
+    );
 
 
-    if (selectedPage) {
+const selectedPage =
 
-        selectedPage.classList.add(
-            "active-page"
-        );
-
-    }
-
-
-    document
-
-        .querySelectorAll(
-            ".nav-item"
-        )
-
-        .forEach(
-
-            item =>
-
-                item.classList.remove(
-                    "active"
-                )
-
-        );
+    document.getElementById(
+        pageName +
+        "Page"
+    );
 
 
-    if (button) {
+if (selectedPage) {
 
-        button.classList.add(
-            "active"
-        );
-
-    }
-
-
-    if (pageName === "browse") {
-
-        renderBrowseItems();
-
-    }
-
-
-    if (pageName === "home") {
-
-        renderRecentItems();
-
-    }
-
-
-    if (pageName === "myposts") {
-
-        renderMyPosts();
-
-    }
-
-
-    if (pageName === "leaderboard") {
-
-        renderLeaderboard();
-
-        updateMyPoints();
-
-    }
+    selectedPage.classList.add(
+        "active-page"
+    );
 
 }
 
+
+document
+
+    .querySelectorAll(
+        ".nav-item"
+    )
+
+    .forEach(
+
+        item =>
+
+            item.classList.remove(
+                "active"
+            )
+
+    );
+
+
+if (button) {
+
+    button.classList.add(
+        "active"
+    );
+
+}
+
+
+if (pageName === "browse") {
+
+    renderBrowseItems();
+
+}
+
+
+if (pageName === "home") {
+
+    renderRecentItems();
+
+}
+
+
+if (pageName === "myposts") {
+
+    renderMyPosts();
+
+}
+
+
+if (pageName === "leaderboard") {
+
+    renderLeaderboard();
+
+    updateMyPoints();
+
+}
+
+}
 
 // ========================================
 // SHOW PAGE BY NAME
@@ -987,88 +964,87 @@ function showPage(
 
 function showPageByName(pageName) {
 
-    document
+document
 
-        .querySelectorAll(
-            ".page-section"
-        )
+    .querySelectorAll(
+        ".page-section"
+    )
 
-        .forEach(
+    .forEach(
 
-            page =>
+        page =>
 
-                page.classList.remove(
-                    "active-page"
-                )
+            page.classList.remove(
+                "active-page"
+            )
 
-        );
-
-
-    const selectedPage =
-
-        document.getElementById(
-            pageName +
-            "Page"
-        );
+    );
 
 
-    if (selectedPage) {
+const selectedPage =
 
-        selectedPage.classList.add(
-            "active-page"
-        );
-
-    }
-
-
-    document
-
-        .querySelectorAll(
-            ".nav-item"
-        )
-
-        .forEach(
-
-            item => {
-
-                item.classList.remove(
-                    "active"
-                );
+    document.getElementById(
+        pageName +
+        "Page"
+    );
 
 
-                const text =
+if (selectedPage) {
 
-                    item.innerText
-                        .toLowerCase();
-
-
-                if (
-
-                    text.includes(
-                        pageName
-                    )
-
-                ) {
-
-                    item.classList.add(
-                        "active"
-                    );
-
-                }
-
-            }
-
-        );
-
-
-    if (pageName === "browse") {
-
-        renderBrowseItems();
-
-    }
+    selectedPage.classList.add(
+        "active-page"
+    );
 
 }
 
+
+document
+
+    .querySelectorAll(
+        ".nav-item"
+    )
+
+    .forEach(
+
+        item => {
+
+            item.classList.remove(
+                "active"
+            );
+
+
+            const text =
+
+                item.innerText
+                    .toLowerCase();
+
+
+            if (
+
+                text.includes(
+                    pageName
+                )
+
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+    );
+
+
+if (pageName === "browse") {
+
+    renderBrowseItems();
+
+}
+
+}
 
 // ========================================
 // ITEM EMOJI
@@ -1076,36 +1052,35 @@ function showPageByName(pageName) {
 
 function getItemEmoji(category) {
 
-    const emojis = {
+const emojis = {
 
-        "Electronics":
-            "📱",
+    "Electronics":
+        "📱",
 
-        "Bags":
-            "🎒",
+    "Bags":
+        "🎒",
 
-        "ID Cards":
-            "🪪",
+    "ID Cards":
+        "🪪",
 
-        "Accessories":
-            "⌚",
+    "Accessories":
+        "⌚",
 
-        "Other":
-            "📦"
-
-    };
-
-
-    return (
-
-        emojis[category] ||
-
+    "Other":
         "📦"
 
-    );
+};
+
+
+return (
+
+    emojis[category] ||
+
+    "📦"
+
+);
 
 }
-
 
 // ========================================
 // SAFE HTML
@@ -1113,34 +1088,33 @@ function getItemEmoji(category) {
 
 function escapeHTML(text) {
 
-    if (
+if (
 
-        text === undefined ||
+    text === undefined ||
 
-        text === null
+    text === null
 
-    ) {
+) {
 
-        return "";
-
-    }
-
-
-    const div =
-
-        document.createElement(
-            "div"
-        );
-
-
-    div.innerText =
-        String(text);
-
-
-    return div.innerHTML;
+    return "";
 
 }
 
+
+const div =
+
+    document.createElement(
+        "div"
+    );
+
+
+div.innerText =
+    String(text);
+
+
+return div.innerHTML;
+
+}
 
 // ========================================
 // CREATE ITEM CARD
@@ -1148,1016 +1122,78 @@ function escapeHTML(text) {
 
 function createItemCard(item) {
 
-    const resolved =
+const resolved =
 
-        item.status ===
-        "Resolved";
+    item.status ===
+    "Resolved";
 
 
-    return `
+return `
 
-        <div
-            class="item-card"
-            onclick="openDetails('${item.id}')"
-        >
+    <div
+        class="item-card"
+        onclick="openDetails('${item.id}')"
+    >
 
 
-            <div class="item-image">
-
-                ${item.emoji || "📦"}
-
-            </div>
-
-
-            <div class="item-top">
-
-
-                <span
-
-                    class="status ${(
-                        item.type || ""
-                    ).toLowerCase()}"
-
-                >
-
-                    ${
-                        resolved
-
-                            ? "RESOLVED"
-
-                            : escapeHTML(
-                                (
-                                    item.type ||
-                                    ""
-                                ).toUpperCase()
-                            )
-                    }
-
-                </span>
-
-
-                <small>
-
-                    ${escapeHTML(
-                        item.category
-                    )}
-
-                </small>
-
-
-            </div>
-
-
-            <h3>
-
-                ${escapeHTML(
-                    item.name
-                )}
-
-            </h3>
-
-
-            <p
-                class="description"
-            >
-
-                ${escapeHTML(
-                    item.description
-                )}
-
-            </p>
-
-
-            <div
-                class="item-meta"
-            >
-
-
-                <span>
-
-                    <i
-                        class="fa-solid fa-location-dot"
-                    ></i>
-
-                    ${escapeHTML(
-                        item.location
-                    )}
-
-                </span>
-
-
-                <span>
-
-                    <i
-                        class="fa-regular fa-calendar"
-                    ></i>
-
-                    ${formatDate(
-                        item.date
-                    )}
-
-                </span>
-
-
-            </div>
-
-
-            ${
-                resolved
-
-                    ? `
-
-                        <p style="
-                            margin-top: 12px;
-                            font-weight: 600;
-                        ">
-
-                            ✅ Successfully resolved
-
-                        </p>
-
-                    `
-
-                    : ""
-
-            }
-
-
-        </div>
-
-    `;
-
-}
-
-
-// ========================================
-// RECENT ITEMS
-// ========================================
-
-function renderRecentItems() {
-
-    const container =
-
-        document.getElementById(
-            "recentItems"
-        );
-
-
-    if (!container) return;
-
-
-    const recentItems =
-
-        items
-
-            .slice()
-
-            .reverse()
-
-            .slice(0, 4);
-
-
-    if (recentItems.length === 0) {
-
-        container.innerHTML = `
-
-            <div style="
-                padding: 30px;
-                color: #9aa8c2;
-            ">
-
-                🔍 No reports yet.
-                Be the first to help!
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-
-        recentItems
-
-            .map(
-                item =>
-                    createItemCard(item)
-            )
-
-            .join("");
-
-}
-
-
-// ========================================
-// BROWSE ITEMS
-// ========================================
-
-function renderBrowseItems(
-    itemsToRender = items
-) {
-
-    const container =
-
-        document.getElementById(
-            "browseItems"
-        );
-
-
-    if (!container) return;
-
-
-    if (
-        itemsToRender.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div style="
-                padding: 30px;
-                color: #9aa8c2;
-            ">
-
-                😕 No items found.
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-
-        itemsToRender
-
-            .slice()
-
-            .reverse()
-
-            .map(
-                item =>
-                    createItemCard(item)
-            )
-
-            .join("");
-
-}
-
-
-// ========================================
-// FILTER ITEMS
-// ========================================
-
-function filterItems(
-    type,
-    button
-) {
-
-    currentFilter =
-        type;
-
-
-    document
-
-        .querySelectorAll(
-            ".filter-btn"
-        )
-
-        .forEach(
-
-            btn =>
-
-                btn.classList.remove(
-                    "active"
-                )
-
-        );
-
-
-    if (button) {
-
-        button.classList.add(
-            "active"
-        );
-
-    }
-
-
-    searchItems();
-
-}
-
-
-// ========================================
-// SEARCH ITEMS
-// ========================================
-
-function searchItems() {
-
-    const searchElement =
-
-        document.getElementById(
-            "searchInput"
-        );
-
-
-    const categoryElement =
-
-        document.getElementById(
-            "categoryFilter"
-        );
-
-
-    if (
-
-        !searchElement ||
-
-        !categoryElement
-
-    ) return;
-
-
-    const search =
-
-        searchElement.value
-            .toLowerCase();
-
-
-    const category =
-
-        categoryElement.value;
-
-
-    const filtered =
-
-        items.filter(
-
-            item => {
-
-
-                const matchesSearch =
-
-                    (
-                        item.name ||
-                        ""
-                    )
-
-                        .toLowerCase()
-
-                        .includes(search)
-
-                    ||
-
-                    (
-                        item.description ||
-                        ""
-                    )
-
-                        .toLowerCase()
-
-                        .includes(search)
-
-                    ||
-
-                    (
-                        item.location ||
-                        ""
-                    )
-
-                        .toLowerCase()
-
-                        .includes(search);
-
-
-                const matchesType =
-
-                    currentFilter === "All"
-
-                    ||
-
-                    item.type ===
-                    currentFilter;
-
-
-                const matchesCategory =
-
-                    category === "All"
-
-                    ||
-
-                    item.category ===
-                    category;
-
-
-                return (
-
-                    matchesSearch &&
-
-                    matchesType &&
-
-                    matchesCategory
-
-                );
-
-            }
-
-        );
-
-
-    renderBrowseItems(
-        filtered
-    );
-
-}
-
-
-// ========================================
-// OPEN POST MODAL
-// ========================================
-
-function openPostModal(type) {
-
-    if (!currentUser) {
-
-        showToast(
-            "Please login first!"
-        );
-
-        return;
-
-    }
-
-
-    currentType =
-        type;
-
-
-    document
-
-        .getElementById(
-            "modalType"
-        )
-
-        .innerText =
-
-        type === "Lost"
-
-            ? "REPORT LOST ITEM"
-
-            : "REPORT FOUND ITEM";
-
-
-    document
-
-        .getElementById(
-            "modalTitle"
-        )
-
-        .innerText =
-
-        type === "Lost"
-
-            ? "What did you lose?"
-
-            : "What did you find?";
-
-
-    document
-
-        .getElementById(
-            "postModal"
-        )
-
-        .style.display =
-        "flex";
-
-
-    document
-
-        .getElementById(
-            "possibleMatches"
-        )
-
-        .style.display =
-        "none";
-
-
-    document
-
-        .getElementById(
-            "itemDate"
-        )
-
-        .valueAsDate =
-        new Date();
-
-}
-
-
-// ========================================
-// CLOSE POST MODAL
-// ========================================
-
-function closePostModal() {
-
-    document
-
-        .getElementById(
-            "postModal"
-        )
-
-        .style.display =
-        "none";
-
-
-    const form =
-
-        document.querySelector(
-            "#postModal form"
-        );
-
-
-    if (form) {
-
-        form.reset();
-
-    }
-
-}
-
-
-// ========================================
-// SUBMIT ITEM
-// ========================================
-
-async function submitItem(event) {
-
-    event.preventDefault();
-
-
-    if (!currentUser) {
-
-        showToast(
-            "Please login first!"
-        );
-
-        return;
-
-    }
-
-
-    const name =
-
-        document
-
-            .getElementById(
-                "itemName"
-            )
-
-            .value
-
-            .trim();
-
-
-    const category =
-
-        document
-
-            .getElementById(
-                "itemCategory"
-            )
-
-            .value;
-
-
-    const location =
-
-        document
-
-            .getElementById(
-                "itemLocation"
-            )
-
-            .value
-
-            .trim();
-
-
-    const date =
-
-        document
-
-            .getElementById(
-                "itemDate"
-            )
-
-            .value;
-
-
-    const description =
-
-        document
-
-            .getElementById(
-                "itemDescription"
-            )
-
-            .value
-
-            .trim();
-
-
-    if (
-
-        !name ||
-
-        !category ||
-
-        !location ||
-
-        !date ||
-
-        !description
-
-    ) {
-
-        showToast(
-            "Please fill all required fields!"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        await addDoc(
-
-            collection(
-                db,
-                "items"
-            ),
-
-            {
-
-                name:
-                    name,
-
-                type:
-                    currentType,
-
-                category:
-                    category,
-
-                location:
-                    location,
-
-                date:
-                    date,
-
-                description:
-                    description,
-
-                emoji:
-                    getItemEmoji(
-                        category
-                    ),
-
-                ownerName:
-                    currentUser.displayName ||
-                    "Campus User",
-
-                ownerId:
-                    currentUser.uid,
-
-                ownerEmail:
-                    currentUser.email ||
-                    "",
-
-                status:
-                    "Open",
-
-                helperId:
-                    null,
-
-                helperName:
-                    null,
-
-                pointsAwarded:
-                    false,
-
-                createdAt:
-                    serverTimestamp()
-
-            }
-
-        );
-
-
-        closePostModal();
-
-
-        showToast(
-            "🎉 Your report has been published!"
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-
-        showToast(
-            "❌ Could not publish report."
-        );
-
-    }
-
-}
-
-
-// ========================================
-// OPEN ITEM DETAILS
-// ========================================
-
-function openDetails(id) {
-
-    const item =
-
-        items.find(
-
-            item =>
-                item.id === id
-
-        );
-
-
-    if (!item) return;
-
-
-    const details =
-
-        document.getElementById(
-            "detailsContent"
-        );
-
-
-    const isMyItem =
-
-        currentUser &&
-
-        item.ownerId ===
-        currentUser.uid;
-
-
-    const isResolved =
-
-        item.status ===
-        "Resolved";
-
-
-    const hasHelper =
-
-        !!item.helperId;
-
-
-    let actionButton =
-        "";
-
-
-    // ALREADY RESOLVED
-
-    if (isResolved) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                disabled
-            >
-
-                ✅ Item Resolved
-
-            </button>
-
-        `;
-
-    }
-
-
-    // OWNER CAN CONFIRM
-
-    else if (
-
-        isMyItem &&
-
-        hasHelper
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                onclick="markAsResolved('${item.id}')"
-            >
-
-                ✅ Mark as Resolved
-                (+10 points to helper)
-
-            </button>
-
-        `;
-
-    }
-
-
-    // OWNER WAITING
-
-    else if (
-
-        isMyItem &&
-
-        !hasHelper
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                onclick="showToast('🤝 Waiting for someone to offer help!')"
-            >
-
-                📦 Your Post
-
-            </button>
-
-        `;
-
-    }
-
-
-    // CURRENT USER IS HELPER
-
-    else if (
-
-        !isMyItem &&
-
-        hasHelper &&
-
-        currentUser &&
-
-        item.helperId ===
-        currentUser.uid
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                disabled
-            >
-
-                🤝 You are helping with this item
-
-            </button>
-
-        `;
-
-    }
-
-
-    // SOMEONE ELSE HELPING
-
-    else if (
-
-        !isMyItem &&
-
-        hasHelper
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                disabled
-            >
-
-                🤝 Someone is already helping
-
-            </button>
-
-        `;
-
-    }
-
-
-    // HELP LOST ITEM
-
-    else if (
-
-        !isMyItem &&
-
-        item.type === "Lost"
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                onclick="helpWithItem('${item.id}')"
-            >
-
-                🤝 I Can Help
-
-            </button>
-
-        `;
-
-    }
-
-
-    // CLAIM FOUND ITEM
-
-    else if (
-
-        !isMyItem &&
-
-        item.type === "Found"
-
-    ) {
-
-        actionButton = `
-
-            <button
-                class="claim-btn"
-                onclick="claimItem('${item.id}')"
-            >
-
-                🔐 Claim This Item
-
-            </button>
-
-        `;
-
-    }
-
-
-    details.innerHTML = `
-
-        <div class="details-image">
+        <div class="item-image">
 
             ${item.emoji || "📦"}
 
         </div>
 
 
-        <span
-            class="status ${(
-                item.type || ""
-            ).toLowerCase()} details-status"
-        >
-
-            ${
-                isResolved
-
-                    ? "RESOLVED"
-
-                    : escapeHTML(
-                        (
-                            item.type ||
-                            ""
-                        ).toUpperCase()
-                    )
-            }
-
-        </span>
+        <div class="item-top">
 
 
-        <h2>
+            <span
+
+                class="status ${(
+                    item.type || ""
+                ).toLowerCase()}"
+
+            >
+
+                ${
+                    resolved
+
+                        ? "RESOLVED"
+
+                        : escapeHTML(
+                            (
+                                item.type ||
+                                ""
+                            ).toUpperCase()
+                        )
+                }
+
+            </span>
+
+
+            <small>
+
+                ${escapeHTML(
+                    item.category
+                )}
+
+            </small>
+
+
+        </div>
+
+
+        <h3>
 
             ${escapeHTML(
                 item.name
             )}
 
-        </h2>
+        </h3>
 
 
-        <p class="details-description">
+        <p
+            class="description"
+        >
 
             ${escapeHTML(
                 item.description
@@ -2166,7 +1202,9 @@ function openDetails(id) {
         </p>
 
 
-        <div class="item-meta">
+        <div
+            class="item-meta"
+        >
 
 
             <span>
@@ -2195,93 +1233,1020 @@ function openDetails(id) {
             </span>
 
 
-            <span>
-
-                <i
-                    class="fa-solid fa-tag"
-                ></i>
-
-                ${escapeHTML(
-                    item.category
-                )}
-
-            </span>
-
-
         </div>
 
 
-        <p style="
-            margin-top: 15px;
-            color: #9aa8c2;
-        ">
-
-            Posted by
-
-            <b>
-
-                ${escapeHTML(
-                    item.ownerName ||
-                    "Campus User"
-                )}
-
-            </b>
-
-        </p>
-
-
         ${
-            hasHelper &&
+            resolved
 
-            !isResolved
-
-                ?
-
-                `
+                ? `
 
                     <p style="
-                        margin-top: 10px;
-                        color: #9aa8c2;
+                        margin-top: 12px;
+                        font-weight: 600;
                     ">
 
-                        🤝 Helper:
-
-                        <b>
-
-                            ${escapeHTML(
-                                item.helperName ||
-                                "Campus Helper"
-                            )}
-
-                        </b>
+                        ✅ Successfully resolved
 
                     </p>
 
                 `
 
-                :
-
-                ""
+                : ""
 
         }
 
 
-        ${actionButton}
+    </div>
+
+`;
+
+}
+
+// ========================================
+// RECENT ITEMS
+// ========================================
+
+function renderRecentItems() {
+
+const container =
+
+    document.getElementById(
+        "recentItems"
+    );
+
+
+if (!container) return;
+
+
+const recentItems =
+
+    items
+
+        .slice()
+
+        .reverse()
+
+        .slice(0, 4);
+
+
+if (recentItems.length === 0) {
+
+    container.innerHTML = `
+
+        <div style="
+            padding: 30px;
+            color: #9aa8c2;
+        ">
+
+            🔍 No reports yet.
+            Be the first to help!
+
+        </div>
 
     `;
 
 
-    document
-
-        .getElementById(
-            "detailsModal"
-        )
-
-        .style.display =
-        "flex";
+    return;
 
 }
 
+
+container.innerHTML =
+
+    recentItems
+
+        .map(
+            item =>
+                createItemCard(item)
+        )
+
+        .join("");
+
+}
+
+// ========================================
+// BROWSE ITEMS
+// ========================================
+
+function renderBrowseItems(
+itemsToRender = items
+) {
+
+const container =
+
+    document.getElementById(
+        "browseItems"
+    );
+
+
+if (!container) return;
+
+
+if (
+    itemsToRender.length === 0
+) {
+
+    container.innerHTML = `
+
+        <div style="
+            padding: 30px;
+            color: #9aa8c2;
+        ">
+
+            😕 No items found.
+
+        </div>
+
+    `;
+
+
+    return;
+
+}
+
+
+container.innerHTML =
+
+    itemsToRender
+
+        .slice()
+
+        .reverse()
+
+        .map(
+            item =>
+                createItemCard(item)
+        )
+
+        .join("");
+
+}
+
+// ========================================
+// FILTER ITEMS
+// ========================================
+
+function filterItems(
+type,
+button
+) {
+
+currentFilter =
+    type;
+
+
+document
+
+    .querySelectorAll(
+        ".filter-btn"
+    )
+
+    .forEach(
+
+        btn =>
+
+            btn.classList.remove(
+                "active"
+            )
+
+    );
+
+
+if (button) {
+
+    button.classList.add(
+        "active"
+    );
+
+}
+
+
+searchItems();
+
+}
+
+// ========================================
+// SEARCH ITEMS
+// ========================================
+
+function searchItems() {
+
+const searchElement =
+
+    document.getElementById(
+        "searchInput"
+    );
+
+
+const categoryElement =
+
+    document.getElementById(
+        "categoryFilter"
+    );
+
+
+if (
+
+    !searchElement ||
+
+    !categoryElement
+
+) return;
+
+
+const search =
+
+    searchElement.value
+        .toLowerCase();
+
+
+const category =
+
+    categoryElement.value;
+
+
+const filtered =
+
+    items.filter(
+
+        item => {
+
+
+            const matchesSearch =
+
+                (
+                    item.name ||
+                    ""
+                )
+
+                    .toLowerCase()
+
+                    .includes(search)
+
+                ||
+
+                (
+                    item.description ||
+                    ""
+                )
+
+                    .toLowerCase()
+
+                    .includes(search)
+
+                ||
+
+                (
+                    item.location ||
+                    ""
+                )
+
+                    .toLowerCase()
+
+                    .includes(search);
+
+
+            const matchesType =
+
+                currentFilter === "All"
+
+                ||
+
+                item.type ===
+                currentFilter;
+
+
+            const matchesCategory =
+
+                category === "All"
+
+                ||
+
+                item.category ===
+                category;
+
+
+            return (
+
+                matchesSearch &&
+
+                matchesType &&
+
+                matchesCategory
+
+            );
+
+        }
+
+    );
+
+
+renderBrowseItems(
+    filtered
+);
+
+}
+
+// ========================================
+// OPEN POST MODAL
+// ========================================
+
+function openPostModal(type) {
+
+if (!currentUser) {
+
+    showToast(
+        "Please login first!"
+    );
+
+    return;
+
+}
+
+
+currentType =
+    type;
+
+
+document
+
+    .getElementById(
+        "modalType"
+    )
+
+    .innerText =
+
+    type === "Lost"
+
+        ? "REPORT LOST ITEM"
+
+        : "REPORT FOUND ITEM";
+
+
+document
+
+    .getElementById(
+        "modalTitle"
+    )
+
+    .innerText =
+
+    type === "Lost"
+
+        ? "What did you lose?"
+
+        : "What did you find?";
+
+
+document
+
+    .getElementById(
+        "postModal"
+    )
+
+    .style.display =
+    "flex";
+
+
+document
+
+    .getElementById(
+        "possibleMatches"
+    )
+
+    .style.display =
+    "none";
+
+
+document
+
+    .getElementById(
+        "itemDate"
+    )
+
+    .valueAsDate =
+    new Date();
+
+}
+
+// ========================================
+// CLOSE POST MODAL
+// ========================================
+
+function closePostModal() {
+
+document
+
+    .getElementById(
+        "postModal"
+    )
+
+    .style.display =
+    "none";
+
+
+const form =
+
+    document.querySelector(
+        "#postModal form"
+    );
+
+
+if (form) {
+
+    form.reset();
+
+}
+
+}
+
+// ========================================
+// SUBMIT ITEM
+// ========================================
+
+async function submitItem(event) {
+
+event.preventDefault();
+
+
+if (!currentUser) {
+
+    showToast(
+        "Please login first!"
+    );
+
+    return;
+
+}
+
+
+const name =
+
+    document
+
+        .getElementById(
+            "itemName"
+        )
+
+        .value
+
+        .trim();
+
+
+const category =
+
+    document
+
+        .getElementById(
+            "itemCategory"
+        )
+
+        .value;
+
+
+const location =
+
+    document
+
+        .getElementById(
+            "itemLocation"
+        )
+
+        .value
+
+        .trim();
+
+
+const date =
+
+    document
+
+        .getElementById(
+            "itemDate"
+        )
+
+        .value;
+
+
+const description =
+
+    document
+
+        .getElementById(
+            "itemDescription"
+        )
+
+        .value
+
+        .trim();
+
+
+if (
+
+    !name ||
+
+    !category ||
+
+    !location ||
+
+    !date ||
+
+    !description
+
+) {
+
+    showToast(
+        "Please fill all required fields!"
+    );
+
+    return;
+
+}
+
+
+try {
+
+    await addDoc(
+
+        collection(
+            db,
+            "items"
+        ),
+
+        {
+
+            name:
+                name,
+
+            type:
+                currentType,
+
+            category:
+                category,
+
+            location:
+                location,
+
+            date:
+                date,
+
+            description:
+                description,
+
+            emoji:
+                getItemEmoji(
+                    category
+                ),
+
+            ownerName:
+                currentUser.displayName ||
+                "Campus User",
+
+            ownerId:
+                currentUser.uid,
+
+            ownerEmail:
+                currentUser.email ||
+                "",
+
+            status:
+                "Open",
+
+            helperId:
+                null,
+
+            helperName:
+                null,
+
+            pointsAwarded:
+                false,
+
+            createdAt:
+                serverTimestamp()
+
+        }
+
+    );
+
+
+    closePostModal();
+
+
+    showToast(
+        "🎉 Your report has been published!"
+    );
+
+}
+
+catch (error) {
+
+    console.error(error);
+
+
+    showToast(
+        "❌ Could not publish report."
+    );
+
+}
+
+}
+
+// ========================================
+// OPEN ITEM DETAILS
+// ========================================
+
+function openDetails(id) {
+
+const item =
+
+    items.find(
+
+        item =>
+            item.id === id
+
+    );
+
+
+if (!item) return;
+
+
+const details =
+
+    document.getElementById(
+        "detailsContent"
+    );
+
+
+const isMyItem =
+
+    currentUser &&
+
+    item.ownerId ===
+    currentUser.uid;
+
+
+const isResolved =
+
+    item.status ===
+    "Resolved";
+
+
+const hasHelper =
+
+    !!item.helperId;
+
+
+let actionButton =
+    "";
+
+
+// ALREADY RESOLVED
+
+if (isResolved) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            disabled
+        >
+
+            ✅ Item Resolved
+
+        </button>
+
+    `;
+
+}
+
+
+// OWNER CAN CONFIRM
+
+else if (
+
+    isMyItem &&
+
+    hasHelper
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            onclick="markAsResolved('${item.id}')"
+        >
+
+            ✅ Mark as Resolved
+            (+10 points to helper)
+
+        </button>
+
+    `;
+
+}
+
+
+// OWNER WAITING
+
+else if (
+
+    isMyItem &&
+
+    !hasHelper
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            onclick="showToast('🤝 Waiting for someone to offer help!')"
+        >
+
+            📦 Your Post
+
+        </button>
+
+    `;
+
+}
+
+
+// CURRENT USER IS HELPER
+
+else if (
+
+    !isMyItem &&
+
+    hasHelper &&
+
+    currentUser &&
+
+    item.helperId ===
+    currentUser.uid
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            disabled
+        >
+
+            🤝 You are helping with this item
+
+        </button>
+
+    `;
+
+}
+
+
+// SOMEONE ELSE HELPING
+
+else if (
+
+    !isMyItem &&
+
+    hasHelper
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            disabled
+        >
+
+            🤝 Someone is already helping
+
+        </button>
+
+    `;
+
+}
+
+
+// HELP LOST ITEM
+
+else if (
+
+    !isMyItem &&
+
+    item.type === "Lost"
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            onclick="helpWithItem('${item.id}')"
+        >
+
+            🤝 I Can Help
+
+        </button>
+
+    `;
+
+}
+
+
+// CLAIM FOUND ITEM
+
+else if (
+
+    !isMyItem &&
+
+    item.type === "Found"
+
+) {
+
+    actionButton = `
+
+        <button
+            class="claim-btn"
+            onclick="claimItem('${item.id}')"
+        >
+
+            🔐 Claim This Item
+
+        </button>
+
+    `;
+
+}
+
+
+details.innerHTML = `
+
+    <div class="details-image">
+
+        ${item.emoji || "📦"}
+
+    </div>
+
+
+    <span
+        class="status ${(
+            item.type || ""
+        ).toLowerCase()} details-status"
+    >
+
+        ${
+            isResolved
+
+                ? "RESOLVED"
+
+                : escapeHTML(
+                    (
+                        item.type ||
+                        ""
+                    ).toUpperCase()
+                )
+        }
+
+    </span>
+
+
+    <h2>
+
+        ${escapeHTML(
+            item.name
+        )}
+
+    </h2>
+
+
+    <p class="details-description">
+
+        ${escapeHTML(
+            item.description
+        )}
+
+    </p>
+
+
+    <div class="item-meta">
+
+
+        <span>
+
+            <i
+                class="fa-solid fa-location-dot"
+            ></i>
+
+            ${escapeHTML(
+                item.location
+            )}
+
+        </span>
+
+
+        <span>
+
+            <i
+                class="fa-regular fa-calendar"
+            ></i>
+
+            ${formatDate(
+                item.date
+            )}
+
+        </span>
+
+
+        <span>
+
+            <i
+                class="fa-solid fa-tag"
+            ></i>
+
+            ${escapeHTML(
+                item.category
+            )}
+
+        </span>
+
+
+    </div>
+
+
+    <p style="
+        margin-top: 15px;
+        color: #9aa8c2;
+    ">
+
+        Posted by
+
+        <b>
+
+            ${escapeHTML(
+                item.ownerName ||
+                "Campus User"
+            )}
+
+        </b>
+
+    </p>
+
+
+    ${
+        hasHelper &&
+
+        !isResolved
+
+            ?
+
+            `
+
+                <p style="
+                    margin-top: 10px;
+                    color: #9aa8c2;
+                ">
+
+                    🤝 Helper:
+
+                    <b>
+
+                        ${escapeHTML(
+                            item.helperName ||
+                            "Campus Helper"
+                        )}
+
+                    </b>
+
+                </p>
+
+            `
+
+            :
+
+            ""
+
+    }
+
+
+    ${actionButton}
+
+`;
+
+
+document
+
+    .getElementById(
+        "detailsModal"
+    )
+
+    .style.display =
+    "flex";
+
+}
 
 // ========================================
 // HELP WITH LOST ITEM
@@ -2289,139 +2254,138 @@ function openDetails(id) {
 
 async function helpWithItem(id) {
 
-    if (!currentUser) {
+if (!currentUser) {
 
-        showToast(
-            "Please login first!"
-        );
+    showToast(
+        "Please login first!"
+    );
 
-        return;
+    return;
 
-    }
-
-
-    try {
-
-        await runTransaction(
-
-            db,
-
-            async (transaction) => {
-
-                const itemRef =
-
-                    doc(
-                        db,
-                        "items",
-                        id
-                    );
+}
 
 
-                const itemSnap =
+try {
 
-                    await transaction.get(
-                        itemRef
-                    );
+    await runTransaction(
 
+        db,
 
-                if (!itemSnap.exists()) {
+        async (transaction) => {
 
-                    throw new Error(
-                        "Item no longer exists."
-                    );
+            const itemRef =
 
-                }
-
-
-                const freshItem =
-                    itemSnap.data();
+                doc(
+                    db,
+                    "items",
+                    id
+                );
 
 
-                if (freshItem.helperId) {
+            const itemSnap =
 
-                    throw new Error(
-                        "Someone is already helping."
-                    );
-
-                }
+                await transaction.get(
+                    itemRef
+                );
 
 
-                if (
+            if (!itemSnap.exists()) {
 
-                    freshItem.status ===
-                    "Resolved"
-
-                ) {
-
-                    throw new Error(
-                        "Item is already resolved."
-                    );
-
-                }
-
-
-                if (
-
-                    freshItem.ownerId ===
-                    currentUser.uid
-
-                ) {
-
-                    throw new Error(
-                        "You cannot help your own post."
-                    );
-
-                }
-
-
-                transaction.update(
-
-                    itemRef,
-
-                    {
-
-                        helperId:
-                            currentUser.uid,
-
-                        helperName:
-                            currentUser.displayName ||
-                            "Campus User",
-
-                        helperAcceptedAt:
-                            serverTimestamp()
-
-                    }
-
+                throw new Error(
+                    "Item no longer exists."
                 );
 
             }
 
-        );
+
+            const freshItem =
+                itemSnap.data();
 
 
-        showToast(
-            "🤝 You are now helping! Wait for the owner to confirm."
-        );
+            if (freshItem.helperId) {
+
+                throw new Error(
+                    "Someone is already helping."
+                );
+
+            }
 
 
-        closeDetailsModal();
+            if (
 
-    }
+                freshItem.status ===
+                "Resolved"
 
-    catch (error) {
+            ) {
 
-        console.error(error);
+                throw new Error(
+                    "Item is already resolved."
+                );
+
+            }
 
 
-        showToast(
-            "❌ " +
-            error.message
-        );
+            if (
 
-    }
+                freshItem.ownerId ===
+                currentUser.uid
+
+            ) {
+
+                throw new Error(
+                    "You cannot help your own post."
+                );
+
+            }
+
+
+            transaction.update(
+
+                itemRef,
+
+                {
+
+                    helperId:
+                        currentUser.uid,
+
+                    helperName:
+                        currentUser.displayName ||
+                        "Campus User",
+
+                    helperAcceptedAt:
+                        serverTimestamp()
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    showToast(
+        "🤝 You are now helping! Wait for the owner to confirm."
+    );
+
+
+    closeDetailsModal();
 
 }
 
+catch (error) {
+
+    console.error(error);
+
+
+    showToast(
+        "❌ " +
+        error.message
+    );
+
+}
+
+}
 
 // ========================================
 // MARK AS RESOLVED
@@ -2430,211 +2394,150 @@ async function helpWithItem(id) {
 
 async function markAsResolved(id) {
 
-    if (!currentUser) return;
+if (!currentUser) return;
 
 
-    try {
+try {
 
-        await runTransaction(
+    await runTransaction(
 
-            db,
+        db,
 
-            async (transaction) => {
+        async (transaction) => {
 
-                const itemRef =
+            const itemRef =
 
-                    doc(
-                        db,
-                        "items",
-                        id
-                    );
-
-
-                const itemSnap =
-
-                    await transaction.get(
-                        itemRef
-                    );
+                doc(
+                    db,
+                    "items",
+                    id
+                );
 
 
-                if (!itemSnap.exists()) {
+            const itemSnap =
 
-                    throw new Error(
-                        "Item does not exist."
-                    );
+                await transaction.get(
+                    itemRef
+                );
+
+
+            if (!itemSnap.exists()) {
+
+                throw new Error(
+                    "Item does not exist."
+                );
+
+            }
+
+
+            const freshItem =
+                itemSnap.data();
+
+
+            if (
+
+                freshItem.ownerId !==
+                currentUser.uid
+
+            ) {
+
+                throw new Error(
+                    "Only the owner can mark this item as resolved."
+                );
+
+            }
+
+
+            if (!freshItem.helperId) {
+
+                throw new Error(
+                    "No helper assigned yet."
+                );
+
+            }
+
+
+            if (
+
+                freshItem.status ===
+                "Resolved"
+
+            ) {
+
+                throw new Error(
+                    "Item is already resolved."
+                );
+
+            }
+
+
+            const helperRef =
+
+                doc(
+                    db,
+                    "users",
+                    freshItem.helperId
+                );
+
+
+            const helperSnap =
+
+                await transaction.get(
+                    helperRef
+                );
+
+
+            // RESOLVE ITEM
+
+            transaction.update(
+
+                itemRef,
+
+                {
+
+                    status:
+                        "Resolved",
+
+                    resolvedAt:
+                        serverTimestamp(),
+
+                    pointsAwarded:
+                        true
 
                 }
 
-
-                const freshItem =
-                    itemSnap.data();
+            );
 
 
-                if (
+            // AWARD POINTS
 
-                    freshItem.ownerId !==
-                    currentUser.uid
-
-                ) {
-
-                    throw new Error(
-                        "Only the owner can mark this item as resolved."
-                    );
-
-                }
-
-
-                if (!freshItem.helperId) {
-
-                    throw new Error(
-                        "No helper assigned yet."
-                    );
-
-                }
-
-
-                if (
-
-                    freshItem.status ===
-                    "Resolved"
-
-                ) {
-
-                    throw new Error(
-                        "Item is already resolved."
-                    );
-
-                }
-
-
-                const helperRef =
-
-                    doc(
-                        db,
-                        "users",
-                        freshItem.helperId
-                    );
-
-
-                const helperSnap =
-
-                    await transaction.get(
-                        helperRef
-                    );
-
-
-                // RESOLVE ITEM
+            if (helperSnap.exists()) {
 
                 transaction.update(
 
-                    itemRef,
+                    helperRef,
 
                     {
 
-                        status:
-                            "Resolved",
+                        points:
+                            increment(10),
 
-                        resolvedAt:
-                            serverTimestamp(),
-
-                        pointsAwarded:
-                            true
+                        resolvedCount:
+                            increment(1)
 
                     }
 
                 );
 
-
-                // AWARD POINTS
-
-                if (helperSnap.exists()) {
-
-                    transaction.update(
-
-                        helperRef,
-
-                        {
-
-                            points:
-                                increment(10),
-
-                            resolvedCount:
-                                increment(1)
-
-                        }
-
-                    );
-
-                }
-
             }
 
-        );
+        }
 
-
-        showToast(
-            "🎉 Item resolved! Helper earned +10 points!"
-        );
-
-
-        closeDetailsModal();
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-
-        showToast(
-            "❌ " +
-            error.message
-        );
-
-    }
-
-}
-
-
-// ========================================
-// CLOSE DETAILS MODAL
-// ========================================
-
-function closeDetailsModal() {
-
-    document
-
-        .getElementById(
-            "detailsModal"
-        )
-
-        .style.display =
-        "none";
-
-}
-
-
-// ========================================
-// CLAIM FOUND ITEM
-// ========================================
-
-function claimItem(id) {
-
-    const item =
-
-        items.find(
-
-            item =>
-                item.id === id
-
-        );
-
-
-    if (!item) return;
+    );
 
 
     showToast(
-        "🔐 Claim request noted! Ownership verification will be required."
+        "🎉 Item resolved! Helper earned +10 points!"
     );
 
 
@@ -2642,6 +2545,64 @@ function claimItem(id) {
 
 }
 
+catch (error) {
+
+    console.error(error);
+
+
+    showToast(
+        "❌ " +
+        error.message
+    );
+
+}
+
+}
+
+// ========================================
+// CLOSE DETAILS MODAL
+// ========================================
+
+function closeDetailsModal() {
+
+document
+
+    .getElementById(
+        "detailsModal"
+    )
+
+    .style.display =
+    "none";
+
+}
+
+// ========================================
+// CLAIM FOUND ITEM
+// ========================================
+
+function claimItem(id) {
+
+const item =
+
+    items.find(
+
+        item =>
+            item.id === id
+
+    );
+
+
+if (!item) return;
+
+
+showToast(
+    "🔐 Claim request noted! Ownership verification will be required."
+);
+
+
+closeDetailsModal();
+
+}
 
 // ========================================
 // MY POSTS
@@ -2649,81 +2610,80 @@ function claimItem(id) {
 
 function renderMyPosts() {
 
-    const container =
+const container =
 
-        document.getElementById(
-            "myPosts"
-        );
-
-
-    if (!container) return;
+    document.getElementById(
+        "myPosts"
+    );
 
 
-    if (!currentUser) {
-
-        container.innerHTML =
-            "";
-
-        return;
-
-    }
+if (!container) return;
 
 
-    const myItems =
-
-        items.filter(
-
-            item =>
-
-                item.ownerId ===
-                currentUser.uid
-
-        );
-
-
-    if (myItems.length === 0) {
-
-        container.innerHTML = `
-
-            <div style="
-                padding: 30px;
-                color: #9aa8c2;
-            ">
-
-                📭 You haven't posted anything yet.
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
+if (!currentUser) {
 
     container.innerHTML =
+        "";
 
-        myItems
-
-            .slice()
-
-            .reverse()
-
-            .map(
-
-                item =>
-
-                    createItemCard(
-                        item
-                    )
-
-            )
-
-            .join("");
+    return;
 
 }
 
+
+const myItems =
+
+    items.filter(
+
+        item =>
+
+            item.ownerId ===
+            currentUser.uid
+
+    );
+
+
+if (myItems.length === 0) {
+
+    container.innerHTML = `
+
+        <div style="
+            padding: 30px;
+            color: #9aa8c2;
+        ">
+
+            📭 You haven't posted anything yet.
+
+        </div>
+
+    `;
+
+
+    return;
+
+}
+
+
+container.innerHTML =
+
+    myItems
+
+        .slice()
+
+        .reverse()
+
+        .map(
+
+            item =>
+
+                createItemCard(
+                    item
+                )
+
+        )
+
+        .join("");
+
+}
 
 // ========================================
 // DATE FORMAT
@@ -2731,54 +2691,53 @@ function renderMyPosts() {
 
 function formatDate(dateString) {
 
-    if (!dateString) {
+if (!dateString) {
 
-        return "Unknown date";
-
-    }
-
-
-    const date =
-
-        new Date(
-            dateString
-        );
-
-
-    if (
-
-        isNaN(
-            date.getTime()
-        )
-
-    ) {
-
-        return dateString;
-
-    }
-
-
-    return date.toLocaleDateString(
-
-        "en-IN",
-
-        {
-
-            day:
-                "numeric",
-
-            month:
-                "short",
-
-            year:
-                "numeric"
-
-        }
-
-    );
+    return "Unknown date";
 
 }
 
+
+const date =
+
+    new Date(
+        dateString
+    );
+
+
+if (
+
+    isNaN(
+        date.getTime()
+    )
+
+) {
+
+    return dateString;
+
+}
+
+
+return date.toLocaleDateString(
+
+    "en-IN",
+
+    {
+
+        day:
+            "numeric",
+
+        month:
+            "short",
+
+        year:
+            "numeric"
+
+    }
+
+);
+
+}
 
 // ========================================
 // TOAST
@@ -2786,41 +2745,40 @@ function formatDate(dateString) {
 
 function showToast(message) {
 
-    const toast =
+const toast =
 
-        document.getElementById(
-            "toast"
+    document.getElementById(
+        "toast"
+    );
+
+
+if (!toast) return;
+
+
+toast.innerText =
+    message;
+
+
+toast.classList.add(
+    "show"
+);
+
+
+setTimeout(
+
+    () => {
+
+        toast.classList.remove(
+            "show"
         );
 
+    },
 
-    if (!toast) return;
+    3000
 
-
-    toast.innerText =
-        message;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-
-        () => {
-
-            toast.classList.remove(
-                "show"
-            );
-
-        },
-
-        3000
-
-    );
+);
 
 }
-
 
 // ========================================
 // CLOSE MODALS ON OUTSIDE CLICK
@@ -2828,101 +2786,99 @@ function showToast(message) {
 
 window.addEventListener(
 
-    "click",
+"click",
 
-    function(event) {
+function(event) {
 
-        const postModal =
+    const postModal =
 
-            document.getElementById(
-                "postModal"
-            );
-
-
-        const detailsModal =
-
-            document.getElementById(
-                "detailsModal"
-            );
+        document.getElementById(
+            "postModal"
+        );
 
 
-        if (
+    const detailsModal =
 
-            event.target ===
-            postModal
-
-        ) {
-
-            closePostModal();
-
-        }
+        document.getElementById(
+            "detailsModal"
+        );
 
 
-        if (
+    if (
 
-            event.target ===
-            detailsModal
+        event.target ===
+        postModal
 
-        ) {
+    ) {
 
-            closeDetailsModal();
-
-        }
+        closePostModal();
 
     }
 
-);
 
+    if (
+
+        event.target ===
+        detailsModal
+
+    ) {
+
+        closeDetailsModal();
+
+    }
+
+}
+
+);
 
 // ========================================
 // MAKE FUNCTIONS AVAILABLE TO HTML
 // ========================================
 
 window.login =
-    login;
+login;
 
 window.logout =
-    logout;
+logout;
 
 window.showPage =
-    showPage;
+showPage;
 
 window.showPageByName =
-    showPageByName;
+showPageByName;
 
 window.filterItems =
-    filterItems;
+filterItems;
 
 window.searchItems =
-    searchItems;
+searchItems;
 
 window.openPostModal =
-    openPostModal;
+openPostModal;
 
 window.closePostModal =
-    closePostModal;
+closePostModal;
 
 window.submitItem =
-    submitItem;
+submitItem;
 
 window.openDetails =
-    openDetails;
+openDetails;
 
 window.closeDetailsModal =
-    closeDetailsModal;
+closeDetailsModal;
 
 window.claimItem =
-    claimItem;
+claimItem;
 
 window.helpWithItem =
-    helpWithItem;
+helpWithItem;
 
 window.markAsResolved =
-    markAsResolved;
+markAsResolved;
 
 window.showToast =
-    showToast;
-
+showToast;
 
 // ========================================
 // INITIALIZE
@@ -2930,18 +2886,18 @@ window.showToast =
 
 document.addEventListener(
 
-    "DOMContentLoaded",
+"DOMContentLoaded",
 
-    function() {
+function() {
 
-        renderRecentItems();
+    renderRecentItems();
 
-        renderBrowseItems();
+    renderBrowseItems();
 
-        renderLeaderboard();
+    renderLeaderboard();
 
-        updateMyPoints();
+    updateMyPoints();
 
-    }
+}
 
 );
